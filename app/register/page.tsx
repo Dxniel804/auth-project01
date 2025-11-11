@@ -1,11 +1,11 @@
-"use client"
+'use client'
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function LoginForm() {
+export default function RegisterForm() {
 
   const [loading, setloading] = useState(false)
   const [error, setError] = useState("")
@@ -15,29 +15,32 @@ export default function LoginForm() {
   function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const name =  formData.get("name") as string;
     const email = formData.get("email") as string;
     const senha = formData.get("senha") as string;
 
-    authClient.signIn.email({
+    authClient.signUp.email({
+      name: name,
       email: email,
       password: senha
     },
     {
-      onSuccess: () => router.push("/dashboard"),
+      onSuccess: () => router.push("/login"),
       onRequest: () => setloading(true),
       onResponse:() => setloading(false),
       onError: (ctx) => setError(ctx.error.message)
     }
-
+  
   )
   }
 
   return (
   <form onSubmit={handleLogin}>
+      <Input name="name" />
     <Input name="email" />
     <Input name="senha" />
     <Button disabled={loading}>
-      {loading ? "Loading..." : "Login"}
+      {loading ? "Loading..." : "Register"}
     </Button>
     {error && error}
   </form>
