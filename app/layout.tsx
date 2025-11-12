@@ -1,35 +1,17 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import UserMenu from "@/components/user-menu"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
-import { redirect } from "next/navigation"
+import "./globals.css"
 
-export default async function PainelLayout({
-  children
+export default function RootLayout({
+  children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user) {
-    redirect("/login")
-  }
-
+  // Root layout is minimal. The sidebar and authenticated UI live under
+  // `app/painel/layout.tsx` so public routes like /login render without it.
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
-          <SidebarTrigger />
-          <UserMenu />
-        </header>
-        <main className="flex-1 overflow-auto p-6">
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <html lang="pt-BR">
+      <body>
+        {children}
+      </body>
+    </html>
   )
 }
