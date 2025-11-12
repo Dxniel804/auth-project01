@@ -1,69 +1,23 @@
-type HookHandlers = {
-	onSuccess?: (res?: any) => void;
-	onRequest?: () => void;
-	onResponse?: () => void;
-	onError?: (ctx: { error: { message: string } }) => void;
-};
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { PrismaClient } from "@prisma/client";
+import { nextCookies } from "better-auth/next-js";
 
-async function safeJson(res: Response) {
-	try {
-		return await res.json();
-	} catch {
-		return null;
-	}
-}
+const prisma = new PrismaClient();
 
-export const authClient = {
-	signIn: {
-		email: async (
-			data: { email: string; password: string },
-			hooks?: HookHandlers
-		) => {
-			hooks?.onRequest?.();
-			try {
-				const res = await fetch("/api/auth", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ action: "signIn", method: "email", ...data }),
-				});
-				const json = await safeJson(res);
-				hooks?.onResponse?.();
-				if (!res.ok) {
-					hooks?.onError?.({ error: { message: json?.message ?? res.statusText } });
-					return;
-				}
-				hooks?.onSuccess?.(json);
-			} catch (err: any) {
-				hooks?.onResponse?.();
-				hooks?.onError?.({ error: { message: err?.message ?? String(err) } });
-			}
-		},
-	},
-	signUp: {
-		email: async (
-			data: { name?: string; email: string; password: string },
-			hooks?: HookHandlers
-		) => {
-			hooks?.onRequest?.();
-			try {
-				const res = await fetch("/api/auth", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ action: "signUp", method: "email", ...data }),
-				});
-				const json = await safeJson(res);
-				hooks?.onResponse?.();
-				if (!res.ok) {
-					hooks?.onError?.({ error: { message: json?.message ?? res.statusText } });
-					return;
-				}
-				hooks?.onSuccess?.(json);
-			} catch (err: any) {
-				hooks?.onResponse?.();
-				hooks?.onError?.({ error: { message: err?.message ?? String(err) } });
-			}
-		},
-	},
-};
+export const auth = betterAuth({
+    database: prismaAdapter(prisma, { provider: "sqlite" }),
+    emailAndPassword: { enabled: true },
+    trustedOrigins: ["http://localhost:3000"],
+    plugins: [nextCookies()]
+});
 
-export default authClient;
+// Cliente de autenticação para uso no frontend
+// Import the React client from the package export 'better-auth/react'.
+// This matches the package.json "exports" field.
+import { createAuthClient } from "better-auth/react"
+
+// Frontend React client for better-auth. Uses hooks like `useSession()`.
+export const authClient = createAuthClient({
+    basePath: "/api/auth",
+})

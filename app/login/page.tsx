@@ -1,46 +1,11 @@
-"use client"
-import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { LoginForm } from "@/components/login-form"
 
-export default function LoginForm() {
-
-  const [loading, setloading] = useState(false)
-  const [error, setError] = useState("")
-
-  const router = useRouter();
-
-  function handleLogin(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = formData.get("email") as string;
-    const senha = formData.get("senha") as string;
-
-    authClient.signIn.email({
-      email: email,
-      password: senha
-    },
-    {
-      onSuccess: () => router.push("/dashboard"),
-      onRequest: () => setloading(true),
-      onResponse:() => setloading(false),
-      onError: (ctx) => setError(ctx.error.message)
-    }
-
-  )
-  }
-
+export default function Page() {
   return (
-  <form onSubmit={handleLogin}>
-    <Input name="email" />
-    <Input name="senha" />
-    <Button disabled={loading}>
-      {loading ? "Loading..." : "Login"}
-    </Button>
-    {error && error}
-  </form>
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm">
+        <LoginForm />
+      </div>
+    </div>
   )
-
 }
