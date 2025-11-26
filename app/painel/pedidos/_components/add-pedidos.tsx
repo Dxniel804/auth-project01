@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
+import { criarPedido } from '../actions'
 
 export default function AddPedidos() {
   const [open, setOpen] = useState(false)
@@ -21,14 +22,14 @@ export default function AddPedidos() {
 
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
-      // TODO: Implementar ação de criar pedido
-      // const result = await criarPedido(formData)
-
-      // Simulação por enquanto
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const result = await criarPedido(formData)
       
-      toast.success('Pedido criado com sucesso!')
-      setOpen(false)
+      if (result.success) {
+        toast.success('Pedido criado com sucesso!')
+        setOpen(false)
+      } else {
+        toast.error(result.error || 'Erro ao criar pedido')
+      }
     })
   }
 

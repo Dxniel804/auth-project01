@@ -5,32 +5,53 @@ import { revalidatePath } from 'next/cache'
 import { StatusPedido } from '@/generated/prisma/client'
 
 export async function criarPedido(formData: FormData) {
-  const clienteId = formData.get('clienteId')
-  const valorTotal = formData.get('valorTotal')
-  const statusValue = formData.get('status')
+  const cliente = formData.get('cliente')
+  const produto = formData.get('produto')
+  const quantidade = formData.get('quantidade')
+  const valor = formData.get('valor')
 
-  const clienteIdStr = typeof clienteId === 'string' ? clienteId : ''
-  const valorTotalStr = typeof valorTotal === 'string' ? valorTotal : ''
-  const status = typeof statusValue === 'string' ? statusValue.trim() as StatusPedido : undefined
+  const clienteStr = typeof cliente === 'string' ? cliente.trim() : ''
+  const produtoStr = typeof produto === 'string' ? produto.trim() : ''
+  const quantidadeNum = typeof quantidade === 'string' ? parseInt(quantidade) : 1
+  const valorNum = typeof valor === 'string' ? parseFloat(valor) : 0
 
-  if (!clienteIdStr || clienteIdStr.trim() === '') {
-    return { error: 'ID do cliente é obrigatório' }
+  if (!clienteStr || clienteStr === '') {
+    return { error: 'Nome do cliente é obrigatório' }
   }
 
-  if (!valorTotalStr || valorTotalStr.trim() === '') {
-    return { error: 'Valor total é obrigatório' }
+  if (!produtoStr || produtoStr === '') {
+    return { error: 'Nome do produto é obrigatório' }
   }
 
-  if (!status) {
-    return { error: 'Status é obrigatório' }
+  if (!quantidadeNum || quantidadeNum < 1) {
+    return { error: 'Quantidade deve ser maior que 0' }
+  }
+
+  if (!valorNum || valorNum <= 0) {
+    return { error: 'Valor deve ser maior que 0' }
   }
 
   try {
+    // Primeiro, criar ou encontrar o cliente
+    let clienteRecord = await prisma.cliente.findFirst({
+      where: { nome: clienteStr }
+    })
+
+    if (!clienteRecord) {
+      clienteRecord = await prisma.cliente.create({
+        data: { nome: clienteStr }
+      })
+    }
+
+    // Calcular valor total
+    const valorTotal = valorNum * quantidadeNum
+
+    // Criar o pedido
     await prisma.pedido.create({
       data: {
-        clienteId: clienteIdStr.trim(),
-        valorTotal: parseFloat(valorTotalStr),
-        status: status,
+        clienteId: clienteRecord.id,
+        valorTotal: valorTotal,
+        status: 'PENDENTE',
         dataCriacao: new Date(),
       },
     })
