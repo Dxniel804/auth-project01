@@ -10,6 +10,7 @@ interface Categoria {
   id: string
   nome: string
   cor: string
+  imagemUrl: string | null
   totalProdutos: number
   createdAt: Date
   updatedAt: Date
@@ -91,7 +92,21 @@ export function CategoriaDisplay() {
           <Card key={categoria.id} className="transition-shadow hover:shadow-md">
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className={`h-10 w-10 rounded-full ${categoria.cor} flex items-center justify-center`}>
+                {categoria.imagemUrl ? (
+                  <img 
+                    src={categoria.imagemUrl} 
+                    alt={categoria.nome}
+                    className="h-10 w-10 rounded-full object-cover"
+                    onError={(e) => {
+                      // Fallback para ícone se a imagem falhar
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`h-10 w-10 rounded-full ${categoria.cor} flex items-center justify-center ${categoria.imagemUrl ? 'hidden' : ''}`}>
                   <Folder className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
