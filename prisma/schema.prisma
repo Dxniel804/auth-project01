@@ -71,6 +71,7 @@ model Categoria {
   nome      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  produtos  Produto[] // Relação: Uma categoria pode ter muitos produtos
 
   @@map("categorias")
 }
@@ -112,4 +113,19 @@ model Pedido {
   // Se você tiver uma tabela de itens do pedido, adicione a relação aqui.
 
   @@map("pedidos") // Mapeia para a tabela "pedidos"
+}
+
+// Modelo de Produto
+model Produto {
+  id          String   @id @default(cuid())
+  nome        String
+  descricao   String?
+  preco       Float
+  estoque     Int      @default(0)
+  categoriaId String?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("produtos")
 }
