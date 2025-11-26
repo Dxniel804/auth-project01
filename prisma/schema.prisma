@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -12,24 +9,23 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id              String    @id
+  name            String
+  email           String    @unique
+  emailVerified   Boolean   @default(false)
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  accounts        Account[]
+  sessions        Session[]
 
-  @@unique([email])
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -37,25 +33,24 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
 model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id                      String    @id
+  accountId               String
+  providerId              String
+  userId                  String
+  accessToken             String?
+  refreshToken            String?
+  idToken                 String?
+  accessTokenExpiresAt    DateTime?
+  refreshTokenExpiresAt   DateTime?
+  scope                   String?
+  password                String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
@@ -78,4 +73,43 @@ model Categoria {
   updatedAt DateTime @default(now()) @updatedAt
 
   @@map("categorias")
+}
+
+// ------------------------------------
+// NOVOS MODELOS PARA PEDIDOS E CLIENTES
+// ------------------------------------
+
+// Enum para padronizar os status do pedido
+enum StatusPedido {
+  PENDENTE
+  EM_PREPARACAO
+  CONCLUIDO
+  CANCELADO
+}
+
+// Modelo de Cliente (necessário para a relação no Pedido e na busca do page.tsx)
+model Cliente {
+  id      String   @id @default(cuid())
+  nome    String
+  // Você pode adicionar mais campos de cliente aqui, como email, telefone, etc.
+  pedidos Pedido[] // Relação: Um cliente pode ter muitos pedidos
+
+  @@map("clientes")
+}
+
+// Modelo de Pedido
+model Pedido {
+  id           String       @id @default(cuid())
+  valorTotal   Float        // Valor numérico do pedido
+  status       StatusPedido @default(PENDENTE) // Usando o Enum
+  dataCriacao  DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Chave estrangeira para o Cliente
+  clienteId    String
+  cliente      Cliente      @relation(fields: [clienteId], references: [id]) // Relação: Um pedido pertence a um cliente
+  
+  // Se você tiver uma tabela de itens do pedido, adicione a relação aqui.
+
+  @@map("pedidos") // Mapeia para a tabela "pedidos"
 }
