@@ -2,40 +2,29 @@
 
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
+import { criarProdutoSchema, editarProdutoSchema } from './validation'
+import { ZodError } from 'zod'
 
-export async function criarProduto(formData: FormData) {
-  const nome = formData.get('nome')
-  const descricao = formData.get('descricao')
-  const preco = formData.get('preco')
-  const estoque = formData.get('estoque')
-  const categoriaId = formData.get('categoriaId')
-
-  const nomeStr = typeof nome === 'string' ? nome.trim() : ''
-  const descricaoStr = typeof descricao === 'string' ? descricao.trim() : ''
-  const precoNum = typeof preco === 'string' ? parseFloat(preco) : 0
-  const estoqueNum = typeof estoque === 'string' ? parseInt(estoque) : 0
-  const categoriaIdStr = typeof categoriaId === 'string' ? categoriaId.trim() : ''
-  const categoriaIdFinal = categoriaIdStr === 'none' ? '' : categoriaIdStr
-
-  if (!nomeStr || nomeStr === '') {
-    return { error: 'Nome do produto é obrigatório' }
-  }
-
-  if (!precoNum || precoNum <= 0) {
-    return { error: 'Preço deve ser maior que 0' }
-  }
-
-  if (estoqueNum < 0) {
-    return { error: 'Estoque não pode ser negativo' }
-  }
-
+export async function criarProduto(prevState: { success: boolean; error?: string } | { error: string; success?: undefined }, formData: FormData) {
   try {
+    // Validar dados com Zod
+    const validatedData = criarProdutoSchema.parse({
+      nome: formData.get('nome'),
+      descricao: formData.get('descricao'),
+      preco: formData.get('preco'),
+      estoque: formData.get('estoque'),
+      categoriaId: formData.get('categoriaId')
+    })
+
+    const { nome, descricao, preco, estoque, categoriaId } = validatedData
+    const categoriaIdFinal = categoriaId === 'none' ? '' : categoriaId
+
     await prisma.produto.create({
       data: {
-        nome: nomeStr,
-        descricao: descricaoStr || null,
-        preco: precoNum,
-        estoque: estoqueNum,
+        nome: nome.trim(),
+        descricao: descricao?.trim() || null,
+        preco: preco,
+        estoque: estoque,
         categoriaId: categoriaIdFinal || null,
       },
     })
@@ -43,45 +32,37 @@ export async function criarProduto(formData: FormData) {
     revalidatePath('/painel/produtos')
     return { success: true }
   } catch (error) {
+    if (error instanceof ZodError) {
+      const fieldErrors = error.issues.map((err: any) => `${err.path.join(".")}: ${err.message}`).join(", ")
+      return { error: fieldErrors }
+    }
+    
     console.error('Erro ao criar produto:', error)
     return { error: 'Erro ao criar produto' }
   }
 }
 
 export async function editarProduto(id: string, formData: FormData) {
-  const nome = formData.get('nome')
-  const descricao = formData.get('descricao')
-  const preco = formData.get('preco')
-  const estoque = formData.get('estoque')
-  const categoriaId = formData.get('categoriaId')
-
-  const nomeStr = typeof nome === 'string' ? nome.trim() : ''
-  const descricaoStr = typeof descricao === 'string' ? descricao.trim() : ''
-  const precoNum = typeof preco === 'string' ? parseFloat(preco) : 0
-  const estoqueNum = typeof estoque === 'string' ? parseInt(estoque) : 0
-  const categoriaIdStr = typeof categoriaId === 'string' ? categoriaId.trim() : ''
-  const categoriaIdFinal = categoriaIdStr === 'none' ? '' : categoriaIdStr
-
-  if (!nomeStr || nomeStr === '') {
-    return { error: 'Nome do produto é obrigatório' }
-  }
-
-  if (!precoNum || precoNum <= 0) {
-    return { error: 'Preço deve ser maior que 0' }
-  }
-
-  if (estoqueNum < 0) {
-    return { error: 'Estoque não pode ser negativo' }
-  }
-
   try {
+    // Validar dados com Zod
+    const validatedData = editarProdutoSchema.parse({
+      nome: formData.get('nome'),
+      descricao: formData.get('descricao'),
+      preco: formData.get('preco'),
+      estoque: formData.get('estoque'),
+      categoriaId: formData.get('categoriaId')
+    })
+
+    const { nome, descricao, preco, estoque, categoriaId } = validatedData
+    const categoriaIdFinal = categoriaId === 'none' ? '' : categoriaId
+
     await prisma.produto.update({
       where: { id },
       data: {
-        nome: nomeStr,
-        descricao: descricaoStr || null,
-        preco: precoNum,
-        estoque: estoqueNum,
+        nome: nome.trim(),
+        descricao: descricao?.trim() || null,
+        preco: preco,
+        estoque: estoque,
         categoriaId: categoriaIdFinal || null,
       },
     })
@@ -89,6 +70,11 @@ export async function editarProduto(id: string, formData: FormData) {
     revalidatePath('/painel/produtos')
     return { success: true }
   } catch (error) {
+    if (error instanceof ZodError) {
+      const fieldErrors = error.issues.map((err: any) => `${err.path.join(".")}: ${err.message}`).join(", ")
+      return { error: fieldErrors }
+    }
+    
     console.error('Erro ao editar produto:', error)
     return { error: 'Erro ao editar produto' }
   }
@@ -112,7 +98,11 @@ export async function getProdutos() {
   try {
     const produtos = await prisma.produto.findMany({
       include: {
-        categoria: true,
+        categoria: {
+          include: {
+            cliente: true
+          }
+        },
       },
       orderBy: {
         createdAt: 'desc',

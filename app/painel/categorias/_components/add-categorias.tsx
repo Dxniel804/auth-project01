@@ -1,74 +1,74 @@
 'use client'
 
+import React from 'react'
+import { useFormState, useFormStatus } from 'react-dom'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useState, useTransition } from 'react'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { criarCategoria } from '../actions'
-import { toast } from 'sonner'
 
-export default function AddCategorias() {
-  const [open, setOpen] = useState(false)
-  const [isPending, startTransition] = useTransition()
+const initialState = {
+  success: false,
+  error: undefined,
+}
 
-  async function handleSubmit(formData: FormData) {
-    startTransition(async () => {
-      const result = await criarCategoria(formData)
+function CreateCategoryForm() {
+  const [state, formAction] = useFormState(criarCategoria, initialState)
+  const { pending } = useFormStatus()
+  const [isOpen, setIsOpen] = React.useState(false)
 
-      if (result.error) {
-        toast.error(result.error)
-      } else {
-        toast.success('Categoria criada com sucesso!')
-        setOpen(false)
-      }
-    })
-  }
+
+  React.useEffect(() => {
+    if (state.success) {
+      setIsOpen(false) 
+    }
+  }, [state.success])
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>Adicionar Categoria</Button>
+        <Button onClick={() => setIsOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Categoria
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Adicionar Categoria</DialogTitle>
+          <DialogTitle>Criar Nova Categoria</DialogTitle>
           <DialogDescription>
-            Crie uma nova categoria para organizar seus produtos.
+            Insira o nome da categoria. A validação Zod garantirá que o nome seja válido.
           </DialogDescription>
         </DialogHeader>
-        <form action={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="nome">Nome da Categoria</Label>
+        
+        {                                                        }
+        <form action={formAction}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="nome" className="text-right">
+                Nome
+              </Label>
               <Input
                 id="nome"
                 name="nome"
-                placeholder="Ex: Pizzas, Bebidas, Sobremesas..."
-                required
-                disabled={isPending}
+                placeholder="Ex: Pizzas, Bebidas..."
+                className="col-span-3"
+                // IMPORTANTE: SEM required AQUI! O Zod faz a validação
               />
             </div>
+            
+            {/* 🚨 AQUI É ONDE A MENSAGEM DO ZOD APARECE 🚨 */}
+            {state.error && (
+              <p className="col-span-4 text-sm text-red-500 text-center">
+                {state.error}
+              </p>
+            )}
+
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isPending}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Criando...' : 'Criar Categoria'}
+            <Button type="submit" disabled={pending}>
+              {pending ? 'Criando...' : 'Criar Categoria'}
             </Button>
           </DialogFooter>
         </form>
@@ -76,3 +76,5 @@ export default function AddCategorias() {
     </Dialog>
   )
 }
+
+export default CreateCategoryForm;

@@ -69,9 +69,11 @@ model Verification {
 model Categoria {
   id        String   @id @default(cuid())
   nome      String
+  clienteId  String?  // Relação: Uma categoria pode pertencer a um cliente
+  cliente    Cliente? @relation(fields: [clienteId], references: [id])
+  produtos  Produto[] // Relação: Uma categoria pode ter muitos produtos
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  produtos  Produto[] // Relação: Uma categoria pode ter muitos produtos
 
   @@map("categorias")
 }
@@ -90,10 +92,12 @@ enum StatusPedido {
 
 // Modelo de Cliente (necessário para a relação no Pedido e na busca do page.tsx)
 model Cliente {
-  id      String   @id @default(cuid())
-  nome    String
-  // Você pode adicionar mais campos de cliente aqui, como email, telefone, etc.
-  pedidos Pedido[] // Relação: Um cliente pode ter muitos pedidos
+  id        String   @id @default(cuid())
+  nome      String
+  endereco  String?
+  telefone  String?
+  categorias Categoria[] // Relação: Um cliente pode ter muitas categorias
+  pedidos   Pedido[] // Relação: Um cliente pode ter muitos pedidos
 
   @@map("clientes")
 }
@@ -110,9 +114,30 @@ model Pedido {
   clienteId    String
   cliente      Cliente      @relation(fields: [clienteId], references: [id]) // Relação: Um pedido pertence a um cliente
   
-  // Se você tiver uma tabela de itens do pedido, adicione a relação aqui.
+  // Relação com itens do pedido
+  itens        ItemPedido[] // Um pedido pode ter muitos itens
 
   @@map("pedidos") // Mapeia para a tabela "pedidos"
+}
+
+// Modelo de Item do Pedido (tabela intermediária)
+model ItemPedido {
+  id          String   @id @default(cuid())
+  quantidade  Int      @default(1)
+  precoUnitario Float  // Preço unitário no momento da compra
+  subtotal     Float    // subtotal = quantidade * precoUnitario
+  
+  // Chaves estrangeiras
+  pedidoId    String
+  pedido      Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  
+  produtoId   String
+  produto     Produto  @relation(fields: [produtoId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("item_pedido")
 }
 
 // Modelo de Produto
@@ -124,6 +149,7 @@ model Produto {
   estoque     Int      @default(0)
   categoriaId String?
   categoria   Categoria? @relation(fields: [categoriaId], references: [id])
+  itensPedido ItemPedido[] // Relação: Um produto pode estar em muitos itens de pedido
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

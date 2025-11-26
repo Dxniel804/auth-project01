@@ -22,16 +22,37 @@ export default function AddProdutos() {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [categorias, setCategorias] = useState<any[]>([])
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
-      const result = await criarProduto(formData)
+      setFieldErrors({})
+      const result = await criarProduto({ success: false, error: undefined }, formData)
       
       if (result.success) {
         toast.success('Produto criado com sucesso!')
         setOpen(false)
       } else {
-        toast.error(result.error || 'Erro ao criar produto')
+        // Parse field errors from the error message
+        const errors: Record<string, string> = {}
+        if (result.error) {
+          const errorParts = result.error.split(', ')
+          errorParts.forEach(part => {
+            if (part.includes(': ')) {
+              const [field, message] = part.split(': ')
+              errors[field] = message
+            } else {
+              // General error
+              toast.error(part)
+            }
+          })
+        }
+        
+        if (Object.keys(errors).length > 0) {
+          setFieldErrors(errors)
+        } else {
+          toast.error(result.error || 'Erro ao criar produto')
+        }
       }
     })
   }
@@ -45,7 +66,12 @@ export default function AddProdutos() {
   }, [])
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      setOpen(isOpen)
+      if (!isOpen) {
+        setFieldErrors({})
+      }
+    }}>
       <DialogTrigger asChild>
         <Button>Adicionar Produto</Button>
       </DialogTrigger>
@@ -64,9 +90,12 @@ export default function AddProdutos() {
                 id="nome"
                 name="nome"
                 placeholder="Ex: Pizza Calabresa"
-                required
+        
                 disabled={isPending}
               />
+              {fieldErrors.nome && (
+                <p className="text-sm text-red-500">{fieldErrors.nome}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="descricao">Descrição</Label>
@@ -76,6 +105,9 @@ export default function AddProdutos() {
                 placeholder="Ex: Pizza tradicional com calabresa, queijo e tomate"
                 disabled={isPending}
               />
+              {fieldErrors.descricao && (
+                <p className="text-sm text-red-500">{fieldErrors.descricao}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="preco">Preço (R$)</Label>
@@ -86,9 +118,12 @@ export default function AddProdutos() {
                 step="0.01"
                 min="0"
                 placeholder="Ex: 35.90"
-                required
+
                 disabled={isPending}
               />
+              {fieldErrors.preco && (
+                <p className="text-sm text-red-500">{fieldErrors.preco}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="estoque">Estoque</Label>
@@ -98,9 +133,12 @@ export default function AddProdutos() {
                 type="number"
                 min="0"
                 placeholder="Ex: 100"
-                required
+        
                 disabled={isPending}
               />
+              {fieldErrors.estoque && (
+                <p className="text-sm text-red-500">{fieldErrors.estoque}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="categoriaId">Categoria</Label>
@@ -117,6 +155,9 @@ export default function AddProdutos() {
                   ))}
                 </SelectContent>
               </Select>
+              {fieldErrors.categoriaId && (
+                <p className="text-sm text-red-500">{fieldErrors.categoriaId}</p>
+              )}
             </div>
           </div>
           <DialogFooter>

@@ -2,16 +2,19 @@
 
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
+import { criarCategoriaSchema, editarCategoriaSchema } from './validation'
+import { ZodError } from 'zod'
 
-export async function criarCategoria(formData: FormData) {
-  const nome = formData.get('nome') as string
-
-  if (!nome || nome.trim() === '') {
-    return { error: 'Nome da categoria é obrigatório' }
-  }
-
+export async function criarCategoria(prevState: { success: boolean; error?: string } | { error: string; success?: undefined }, formData: FormData) {
   try {
-  await prisma.categoria.create({
+    // Validar dados com Zod
+    const validatedData = criarCategoriaSchema.parse({
+      nome: formData.get('nome')
+    })
+
+    const { nome } = validatedData
+
+    await prisma.categoria.create({
       data: {
         nome: nome.trim(),
       },
@@ -20,20 +23,26 @@ export async function criarCategoria(formData: FormData) {
     revalidatePath('/painel/categorias')
     return { success: true }
   } catch (error) {
+    if (error instanceof ZodError) {
+      const fieldErrors = error.issues.map((err: any) => err.message).join(', ')
+      return { error: fieldErrors }
+    }
+    
     console.error('Erro ao criar categoria:', error)
     return { error: 'Erro ao criar categoria' }
   }
 }
 
 export async function editarCategoria(id: string, formData: FormData) {
-  const nome = formData.get('nome') as string
-
-  if (!nome || nome.trim() === '') {
-    return { error: 'Nome da categoria é obrigatório' }
-  }
-
   try {
-  await prisma.categoria.update({
+    // Validar dados com Zod
+    const validatedData = editarCategoriaSchema.parse({
+      nome: formData.get('nome')
+    })
+
+    const { nome } = validatedData
+
+    await prisma.categoria.update({
       where: { id },
       data: {
         nome: nome.trim(),
@@ -43,6 +52,11 @@ export async function editarCategoria(id: string, formData: FormData) {
     revalidatePath('/painel/categorias')
     return { success: true }
   } catch (error) {
+    if (error instanceof ZodError) {
+      const fieldErrors = error.issues.map((err: any) => err.message).join(', ')
+      return { error: fieldErrors }
+    }
+    
     console.error('Erro ao editar categoria:', error)
     return { error: 'Erro ao editar categoria' }
   }
