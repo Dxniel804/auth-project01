@@ -18,3 +18,29 @@ export const editarProdutoSchema = z.object({
 
 export type CriarProdutoFormData = z.infer<typeof criarProdutoSchema>
 export type EditarProdutoFormData = z.infer<typeof editarProdutoSchema>
+
+export interface Produto {
+  id: string
+  nome: string
+  descricao?: string
+  preco: number
+  estoque: number
+  categoriaId?: string
+  createdAt: Date
+  updatedAt: Date
+  categoria?: {
+    id: string
+    nome: string
+    createdAt: Date
+    updatedAt: Date
+    cor?: string | null
+    imagemUrl?: string | null
+    clienteId?: string | null
+    cliente?: {
+      id: string
+      nome: string
+      endereco?: string | null
+      telefone?: string | null
+    } | null
+  }
+}

@@ -17,21 +17,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState, useTransition, useEffect } from 'react'
 import { toast } from 'sonner'
 import { editarProduto, getCategorias } from '../actions'
+import { Produto } from '../validation'
 import { Pencil } from 'lucide-react'
 
 interface EditProdutoProps {
-  produto: {
-    id: string
-    nome: string
-    descricao?: string
-    preco: number
-    estoque: number
-    categoriaId?: string
-    categoria?: {
-      id: string
-      nome: string
-    }
-  }
+  produto: Produto
 }
 
 export default function EditProduto({ produto }: EditProdutoProps) {

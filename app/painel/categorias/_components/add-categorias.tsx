@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { useFormState, useFormStatus } from 'react-dom'
+import React, { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,7 +15,7 @@ const initialState = {
 }
 
 function CreateCategoryForm() {
-  const [state, formAction] = useFormState(criarCategoria, initialState)
+  const [state, formAction] = useActionState(criarCategoria, initialState)
   const { pending } = useFormStatus()
   const [isOpen, setIsOpen] = React.useState(false)
 

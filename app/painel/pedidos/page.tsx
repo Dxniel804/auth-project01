@@ -4,9 +4,19 @@ import AddPedidos from './_components/add-pedidos'
 import EditPedido from './_components/edit-pedido'
 import DeletePedido from './_components/delete-pedido'
 
+interface PedidoComCliente {
+  id: string
+  valorTotal: number
+  status: string
+  dataCriacao: Date
+  cliente: {
+    nome: string
+  } | undefined
+}
+
 export default async function PedidosPage() {
   // Busca todos os pedidos, ordenando pelo mais recente, e inclui o nome do cliente associado
-  const pedidos = await prisma.pedido.findMany({
+  const pedidos: PedidoComCliente[] = await prisma.pedido.findMany({
     orderBy: {
       dataCriacao: 'desc' // Ordena do mais novo para o mais antigo
     },
@@ -51,7 +61,7 @@ export default async function PedidosPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {/* Itera sobre os pedidos diretamente */}
-          {pedidos.map(pedido => (
+          {pedidos.map((pedido: PedidoComCliente) => (
             <Card key={pedido.id} className="transition-shadow hover:shadow-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="line-clamp-1 text-lg">

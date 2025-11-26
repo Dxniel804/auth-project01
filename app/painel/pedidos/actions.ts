@@ -2,7 +2,6 @@
 
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
-import { StatusPedido } from '@/generated/prisma/client'
 import { criarPedidoSchema, editarPedidoSchema } from './validation'
 import { ZodError } from 'zod'
 

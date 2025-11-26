@@ -15,13 +15,11 @@ import {
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { excluirProduto } from '../actions'
+import { Produto } from '../validation'
 import { Trash2 } from 'lucide-react'
 
 interface DeleteProdutoProps {
-  produto: {
-    id: string
-    nome: string
-  }
+  produto: Pick<Produto, 'id' | 'nome'>
 }
 
 export default function DeleteProduto({ produto }: DeleteProdutoProps) {

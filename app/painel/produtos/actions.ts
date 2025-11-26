@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
-import { criarProdutoSchema, editarProdutoSchema } from './validation'
+import { criarProdutoSchema, editarProdutoSchema, Produto } from './validation'
 import { ZodError } from 'zod'
 
 export async function criarProduto(prevState: { success: boolean; error?: string } | { error: string; success?: undefined }, formData: FormData) {
@@ -94,7 +94,7 @@ export async function excluirProduto(id: string) {
   }
 }
 
-export async function getProdutos() {
+export async function getProdutos(): Promise<Produto[]> {
   try {
     const produtos = await prisma.produto.findMany({
       include: {
@@ -110,7 +110,7 @@ export async function getProdutos() {
     })
     
     // Transform null values to undefined to match component interfaces
-    return produtos.map(produto => ({
+    return produtos.map((produto: any): Produto => ({
       ...produto,
       descricao: produto.descricao || undefined,
       categoriaId: produto.categoriaId || undefined,

@@ -9,14 +9,18 @@ export async function criarCategoria(prevState: { success: boolean; error?: stri
   try {
     // Validar dados com Zod
     const validatedData = criarCategoriaSchema.parse({
-      nome: formData.get('nome')
+      nome: formData.get('nome'),
+      cor: formData.get('cor'),
+      imagemUrl: formData.get('imagemUrl')
     })
 
-    const { nome } = validatedData
+    const { nome, cor, imagemUrl } = validatedData
 
     await prisma.categoria.create({
       data: {
         nome: nome.trim(),
+        cor: cor || "bg-blue-500",
+        imagemUrl: imagemUrl || null,
       },
     })
 
@@ -37,15 +41,19 @@ export async function editarCategoria(id: string, formData: FormData) {
   try {
     // Validar dados com Zod
     const validatedData = editarCategoriaSchema.parse({
-      nome: formData.get('nome')
+      nome: formData.get('nome'),
+      cor: formData.get('cor'),
+      imagemUrl: formData.get('imagemUrl')
     })
 
-    const { nome } = validatedData
+    const { nome, cor, imagemUrl } = validatedData
 
     await prisma.categoria.update({
       where: { id },
       data: {
         nome: nome.trim(),
+        cor: cor || "bg-blue-500",
+        imagemUrl: imagemUrl || null,
       },
     })
 
