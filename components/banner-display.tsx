@@ -122,18 +122,30 @@ export function BannerDisplay({ className = "" }: BannerDisplayProps) {
 
   const BannerContent = () => (
     <>
-      <div className="grid lg:grid-cols-2 gap-8 items-center">
-        <div className="space-y-6">
+      {banner.imagemUrl && (
+        <div className="absolute inset-0">
+          <Image
+            src={banner.imagemUrl}
+            alt={banner.titulo}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
+        </div>
+      )}
+      <div className="relative container mx-auto px-4 py-16 lg:py-24">
+        <div className="max-w-2xl space-y-6">
           {banner.subtitulo && (
-            <Badge className="bg-white/20 text-white border-white/30 w-fit">
+            <Badge className="bg-orange-500 text-white border-orange-400 w-fit px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur-sm">
               {banner.subtitulo}
             </Badge>
           )}
-          <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+          <h1 className="text-4xl lg:text-6xl font-bold leading-tight text-white drop-shadow-2xl">
             {banner.titulo}
           </h1>
           {banner.descricao && (
-            <p className="text-lg lg:text-xl text-white/90 max-w-lg">
+            <p className="text-lg lg:text-xl text-white max-w-lg drop-shadow-lg">
               {banner.descricao}
             </p>
           )}
@@ -141,51 +153,33 @@ export function BannerDisplay({ className = "" }: BannerDisplayProps) {
             <div className="flex flex-col sm:flex-row gap-4">
               {banner.linkUrl ? (
                 <Link href={banner.linkUrl} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="bg-white text-orange-500 hover:bg-orange-50">
+                  <Button size="lg" className="bg-orange-500 text-white hover:bg-orange-600 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 px-8 py-4 text-lg font-bold">
                     {banner.textoBotao}
                   </Button>
                 </Link>
               ) : (
-                <Button size="lg" className="bg-white text-orange-500 hover:bg-orange-50">
+                <Button size="lg" className="bg-orange-500 text-white hover:bg-orange-600 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 px-8 py-4 text-lg font-bold">
                   {banner.textoBotao}
                 </Button>
               )}
             </div>
           )}
         </div>
-        {banner.imagemUrl && (
-          <div className="relative">
-            <div className="relative w-full h-64 lg:h-96 rounded-2xl overflow-hidden">
-              <Image
-                src={banner.imagemUrl}
-                alt={banner.titulo}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
-        )}
       </div>
     </>
   )
 
   return (
     <section className={`relative overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 text-white ${className}`}>
-      <div className="absolute inset-0 bg-black/20"></div>
-      <div className="relative container mx-auto px-4 py-16 lg:py-24">
-        {banner.linkUrl ? (
-          <Link href={banner.linkUrl} target="_blank" rel="noopener noreferrer" className="block">
-            <BannerContent />
-          </Link>
-        ) : (
+      {!banner.imagemUrl && <div className="absolute inset-0 bg-black/20"></div>}
+      {banner.linkUrl ? (
+        <Link href={banner.linkUrl} target="_blank" rel="noopener noreferrer" className="block">
           <BannerContent />
-        )}
-      </div>
+        </Link>
+      ) : (
+        <BannerContent />
+      )}
       
-      {/* Elementos decorativos */}
-      <div className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-10 left-10 w-32 h-32 bg-orange-400 rounded-full opacity-20 animate-pulse delay-75"></div>
-    </section>
+          </section>
   )
 }

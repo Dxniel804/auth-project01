@@ -7,8 +7,8 @@ export const BannerSchema = z.object({
   imagemUrl: z.string().url("URL da imagem inválida").optional().or(z.literal("")),
   linkUrl: z.string().url("URL do link inválida").optional().or(z.literal("")),
   textoBotao: z.string().max(50, "O texto do botão deve ter no máximo 50 caracteres").optional(),
-  ativo: z.boolean().default(true),
-  ordem: z.number().int().min(0, "A ordem deve ser um número positivo").default(0),
+  ativo: z.boolean(),
+  ordem: z.number().int().min(0, "A ordem deve ser um número positivo"),
 })
 
 export type BannerFormData = z.infer<typeof BannerSchema>

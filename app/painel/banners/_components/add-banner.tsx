@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, SubmitHandler, DefaultValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { criarBanner } from "../actions"
+import { criarBanner, getBanners } from "../actions"
 import { BannerSchema, type BannerFormData } from "../validation"
 
 interface AddBannerProps {
@@ -22,29 +22,39 @@ interface AddBannerProps {
 export function AddBanner({ onClose, onSuccess }: AddBannerProps) {
   const [isLoading, setIsLoading] = useState(false)
   
+  const defaultValues: DefaultValues<BannerFormData> = {
+    titulo: "",
+    subtitulo: "",
+    descricao: "",
+    imagemUrl: "",
+    linkUrl: "",
+    textoBotao: "",
+    ativo: true,
+    ordem: 0,
+  }
+
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<BannerFormData>({
     resolver: zodResolver(BannerSchema),
-    defaultValues: {
-      titulo: "",
-      subtitulo: "",
-      descricao: "",
-      imagemUrl: "",
-      linkUrl: "",
-      textoBotao: "",
-      ativo: true,
-      ordem: 0,
-    },
+    defaultValues,
   })
 
-  const onSubmit = async (data: BannerFormData) => {
+  const ativoValue = watch("ativo")
+
+  const onSubmit: SubmitHandler<BannerFormData> = async (data) => {
+    console.log("[FORM DEBUG] Iniciando submit com dados:", JSON.stringify(data, null, 2))
     setIsLoading(true)
+    
     try {
+      console.log("[FORM DEBUG] Chamando criarBanner...")
       const result = await criarBanner(data)
+      console.log("[FORM DEBUG] Resultado de criarBanner:", JSON.stringify(result, null, 2))
       
       if (result.success) {
         toast.success("Banner criado com sucesso!")
@@ -52,11 +62,15 @@ export function AddBanner({ onClose, onSuccess }: AddBannerProps) {
         onSuccess?.()
         onClose?.()
       } else {
+        console.error("[FORM DEBUG] Erro na criação:", result.error)
         toast.error(result.error || "Erro ao criar banner")
       }
     } catch (error) {
+      console.error("[FORM DEBUG] Erro no catch do form:", error)
+      console.error("[FORM DEBUG] Stack:", error instanceof Error ? error.stack : 'No stack')
       toast.error("Erro ao criar banner")
     } finally {
+      console.log("[FORM DEBUG] Finalizando submit, isLoading false")
       setIsLoading(false)
     }
   }
@@ -70,7 +84,7 @@ export function AddBanner({ onClose, onSuccess }: AddBannerProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit) as any} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="titulo">Título *</Label>
@@ -171,9 +185,9 @@ export function AddBanner({ onClose, onSuccess }: AddBannerProps) {
                 <Switch
                   id="ativo"
                   {...register("ativo")}
-                  checked={!!register("ativo").value}
+                  checked={ativoValue}
                   onCheckedChange={(checked: boolean) => {
-                    register("ativo").onChange({ target: { value: checked } })
+                    setValue("ativo", checked)
                   }}
                 />
                 <Label htmlFor="ativo">Banner Ativo</Label>

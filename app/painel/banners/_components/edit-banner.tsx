@@ -28,10 +28,13 @@ export function EditBanner({ bannerId, onClose, onSuccess }: EditBannerProps) {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<EditarBannerFormData>({
     resolver: zodResolver(EditarBannerSchema),
   })
+
+  const ativoValue = watch("ativo")
 
   useEffect(() => {
     const loadBanner = async () => {
@@ -208,7 +211,7 @@ export function EditBanner({ bannerId, onClose, onSuccess }: EditBannerProps) {
                 <Switch
                   id="ativo"
                   {...register("ativo")}
-                  checked={!!register("ativo").value}
+                  checked={ativoValue}
                   onCheckedChange={(checked: boolean) => {
                     setValue("ativo", checked)
                   }}
