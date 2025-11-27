@@ -123,6 +123,7 @@ model Produto {
   id          String       @id @default(cuid())
   nome        String
   descricao   String?
+  imagemUrl   String?
   preco       Float
   estoque     Int          @default(0)
   categoriaId String?
