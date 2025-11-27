@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma-client'
 import { revalidatePath } from 'next/cache'
 import { criarCategoriaSchema, editarCategoriaSchema } from './validation'
 import { ZodError } from 'zod'
+import { generateSlug } from '@/lib/slug'
 
 export async function criarCategoria(prevState: { success: boolean; error?: string } | { error: string; success?: undefined }, formData: FormData) {
   try {
@@ -16,9 +17,19 @@ export async function criarCategoria(prevState: { success: boolean; error?: stri
 
     const { nome, cor, imagemUrl } = validatedData
 
+    const baseSlug = generateSlug(nome)
+    let slug = baseSlug
+    let counter = 1
+
+    while (await prisma.categoria.findFirst({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
+
     await prisma.categoria.create({
       data: {
         nome: nome.trim(),
+        slug,
         cor: cor || "bg-blue-500",
         imagemUrl: imagemUrl || null,
       },
@@ -48,10 +59,29 @@ export async function editarCategoria(id: string, formData: FormData) {
 
     const { nome, cor, imagemUrl } = validatedData
 
+    const baseSlug = generateSlug(nome)
+    let slug = baseSlug
+    let counter = 1
+
+    while (
+      await prisma.categoria.findFirst({
+        where: {
+          slug,
+          NOT: {
+            id,
+          },
+        },
+      })
+    ) {
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
+
     await prisma.categoria.update({
       where: { id },
       data: {
         nome: nome.trim(),
+        slug,
         cor: cor || "bg-blue-500",
         imagemUrl: imagemUrl || null,
       },
