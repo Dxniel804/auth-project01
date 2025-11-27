@@ -49,11 +49,19 @@ export default async function CategoriaPage({ params }: CategoriaPageProps) {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-8 px-4 py-10">
-      <div className="space-y-2">
-        <p className="text-sm uppercase tracking-widest text-muted-foreground">Categoria</p>
-        <h1 className="text-3xl font-bold">{categoria.nome}</h1>
-        <p className="text-sm text-muted-foreground">/{categoria.slug}</p>
+    <div className="container mx-auto max-w-5xl space-y-10 px-4 py-10 text-center">
+      <div className="flex flex-col items-center gap-3">
+        <Link
+          href="/painel"
+          className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+        >
+          ← Voltar para o painel
+        </Link>
+        <div className="space-y-2 max-w-2xl">
+          <p className="text-sm uppercase tracking-widest text-muted-foreground">Categoria</p>
+          <h1 className="text-3xl font-bold">{categoria.nome}</h1>
+          <p className="text-sm text-muted-foreground">/{categoria.slug}</p>
+        </div>
       </div>
 
       {categoria.produtos.length === 0 ? (
@@ -61,12 +69,12 @@ export default async function CategoriaPage({ params }: CategoriaPageProps) {
           Nenhum produto cadastrado para esta categoria ainda.
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 justify-items-center md:grid-cols-2 lg:grid-cols-3 mx-auto max-w-4xl">
           {categoria.produtos.map((produto: (typeof categoria.produtos)[number]) => (
             <Link
               key={produto.id}
               href={`/produto/${produto.id}`}
-              className="overflow-hidden rounded-lg border bg-background shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="h-full w-full max-w-sm overflow-hidden rounded-lg border bg-background shadow-sm transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               {produto.imagemUrl ? (
                 <div className="relative aspect-video">

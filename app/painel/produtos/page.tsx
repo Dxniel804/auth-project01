@@ -5,6 +5,7 @@ import AddProdutos from './_components/add-produtos'
 import EditProduto from './_components/edit-produto'
 import DeleteProduto from './_components/delete-produto'
 
+
 export default async function ProdutosPage() {
   const produtos = await getProdutos()
 

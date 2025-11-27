@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 
 import { prisma } from '@/lib/prisma-client'
 import { Button } from '@/components/ui/button'
+import { AddToCartButton } from '@/components/add-to-cart-button'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -44,10 +45,19 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-12">
-      <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
+    <div className="container mx-auto max-w-4xl px-4 py-12 space-y-10 text-center">
+      <div className="flex flex-col items-center gap-3">
+        <Link
+          href="/painel"
+          className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+        >
+          ← Voltar para o painel
+        </Link>
+      </div>
+
+      <div className="flex flex-col items-center gap-10 text-left lg:flex-row lg:items-start">
         <div className="flex w-full justify-center lg:w-auto lg:flex-1">
-          <div className="relative aspect-[4/3] w-full max-w-sm sm:max-w-md lg:max-w-lg overflow-hidden rounded-2xl border bg-muted shadow-sm">
+          <div className="relative aspect-[4/3] w-full max-w-sm sm:max-w-md lg:max-w-md overflow-hidden rounded-2xl border bg-muted shadow-sm">
             {produto.imagemUrl ? (
               <Image
                 src={produto.imagemUrl}
@@ -92,9 +102,14 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
             </div>
           )}
 
-          <Button size="lg" className="w-full sm:w-auto">
-            Adicionar ao Carrinho
-          </Button>
+          <AddToCartButton
+            product={{
+              id: produto.id,
+              nome: produto.nome,
+              preco: produto.preco,
+              imagemUrl: produto.imagemUrl,
+            }}
+          />
         </div>
       </div>
     </div>
