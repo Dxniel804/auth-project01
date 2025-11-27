@@ -132,6 +132,10 @@ export default function CarrinhoPage() {
                 <span>Total</span>
                 <span>{currencyFormatter.format(total)}</span>
               </div>
+
+              <Button asChild disabled={items.length === 0} className="w-full mt-4">
+                <Link href="/checkout">Finalizar pedido</Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
