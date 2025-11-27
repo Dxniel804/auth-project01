@@ -15,8 +15,10 @@ export default async function Page() {
   }
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <RegisterForm />
+    <div className="min-h-screen bg-muted/20 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md">
+        <RegisterForm />
+      </div>
     </div>
   )
 }
