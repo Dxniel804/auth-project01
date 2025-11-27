@@ -142,7 +142,7 @@ export default function AddProdutos() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="categoriaId">Categoria</Label>
-              <Select name="categoriaId" disabled={isPending}>
+              <Select name="categoriaId" defaultValue="none" disabled={isPending}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
@@ -157,6 +157,18 @@ export default function AddProdutos() {
               </Select>
               {fieldErrors.categoriaId && (
                 <p className="text-sm text-red-500">{fieldErrors.categoriaId}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="imagemUrl">URL da Imagem</Label>
+              <Input
+                id="imagemUrl"
+                name="imagemUrl"
+                placeholder="https://exemplo.com/imagem.jpg"
+                disabled={isPending}
+              />
+              {fieldErrors.imagemUrl && (
+                <p className="text-sm text-red-500">{fieldErrors.imagemUrl}</p>
               )}
             </div>
           </div>

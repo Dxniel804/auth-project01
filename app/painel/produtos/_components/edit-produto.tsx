@@ -130,6 +130,16 @@ export default function EditProduto({ produto }: EditProdutoProps) {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="imagemUrl">URL da Imagem</Label>
+              <Input
+                id="imagemUrl"
+                name="imagemUrl"
+                defaultValue={produto.imagemUrl || ''}
+                placeholder="https://exemplo.com/imagem.jpg"
+                disabled={isPending}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button

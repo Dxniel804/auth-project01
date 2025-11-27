@@ -13,10 +13,11 @@ export async function criarProduto(prevState: { success: boolean; error?: string
       descricao: formData.get('descricao'),
       preco: formData.get('preco'),
       estoque: formData.get('estoque'),
-      categoriaId: formData.get('categoriaId')
+      categoriaId: formData.get('categoriaId'),
+      imagemUrl: formData.get('imagemUrl')
     })
 
-    const { nome, descricao, preco, estoque, categoriaId } = validatedData
+    const { nome, descricao, preco, estoque, categoriaId, imagemUrl } = validatedData
     const categoriaIdFinal = categoriaId === 'none' ? '' : categoriaId
 
     await prisma.produto.create({
@@ -26,6 +27,7 @@ export async function criarProduto(prevState: { success: boolean; error?: string
         preco: preco,
         estoque: estoque,
         categoriaId: categoriaIdFinal || null,
+        imagemUrl: imagemUrl || null,
       },
     })
 
@@ -50,10 +52,11 @@ export async function editarProduto(id: string, formData: FormData) {
       descricao: formData.get('descricao'),
       preco: formData.get('preco'),
       estoque: formData.get('estoque'),
-      categoriaId: formData.get('categoriaId')
+      categoriaId: formData.get('categoriaId'),
+      imagemUrl: formData.get('imagemUrl')
     })
 
-    const { nome, descricao, preco, estoque, categoriaId } = validatedData
+    const { nome, descricao, preco, estoque, categoriaId, imagemUrl } = validatedData
     const categoriaIdFinal = categoriaId === 'none' ? '' : categoriaId
 
     await prisma.produto.update({
@@ -64,6 +67,7 @@ export async function editarProduto(id: string, formData: FormData) {
         preco: preco,
         estoque: estoque,
         categoriaId: categoriaIdFinal || null,
+        imagemUrl: imagemUrl || null,
       },
     })
 
