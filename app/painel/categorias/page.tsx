@@ -1,4 +1,5 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma-client'
 import AddCategorias from './_components/add-categorias'
 import EditCategoria from './_components/edit-categoria'
@@ -27,12 +28,18 @@ export default async function CategoriasPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {categorias.map((categoria: typeof categorias[number]) => (
             <Card key={categoria.id} className="transition-shadow hover:shadow-md">
-              <CardHeader className="pb-3">
-                <CardTitle className="line-clamp-1 text-lg">{categoria.nome}</CardTitle>
-              </CardHeader>
-              <CardContent className="pb-3">
-                <p className="text-xs text-muted-foreground">ID: {categoria.id}</p>
-              </CardContent>
+              <Link
+                href={`/categoria/${categoria.slug}`}
+                className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="line-clamp-1 text-lg">{categoria.nome}</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-3">
+                  <p className="text-xs text-muted-foreground">ID: {categoria.id}</p>
+                  <p className="text-xs text-muted-foreground">Slug: {categoria.slug}</p>
+                </CardContent>
+              </Link>
               <CardFooter className='flex items-center justify-end gap-2'>
                 <EditCategoria categoria={categoria} />
                 <DeleteCategoria categoria={categoria} />
