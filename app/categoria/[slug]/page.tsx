@@ -50,12 +50,9 @@ export default async function CategoriaPage({ params }: CategoriaPageProps) {
 
   return (
     <div className="container mx-auto max-w-5xl space-y-10 px-4 py-10 text-center">
-      <div className="flex flex-col items-center gap-3">
-        <Link
-          href="/painel"
-          className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
-        >
-          ← Voltar para o painel
+      <div className="flex flex-col items-center gap-4">
+        <Link href="/painel/categorias" className="inline-flex items-center gap-2 rounded-full border px-4 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary/10">
+          ← Voltar para categorias
         </Link>
         <div className="space-y-2 max-w-2xl">
           <p className="text-sm uppercase tracking-widest text-muted-foreground">Categoria</p>

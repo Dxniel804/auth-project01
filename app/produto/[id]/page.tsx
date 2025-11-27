@@ -102,14 +102,19 @@ export default async function ProdutoPage({ params }: ProdutoPageProps) {
             </div>
           )}
 
-          <AddToCartButton
-            product={{
-              id: produto.id,
-              nome: produto.nome,
-              preco: produto.preco,
-              imagemUrl: produto.imagemUrl,
-            }}
-          />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <AddToCartButton
+              product={{
+                id: produto.id,
+                nome: produto.nome,
+                preco: produto.preco,
+                imagemUrl: produto.imagemUrl,
+              }}
+            />
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link href="/carrinho">Ir para o Carrinho</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

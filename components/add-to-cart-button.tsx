@@ -45,14 +45,25 @@ function writeCart(items: CartItem[]) {
 
 export function AddToCartButton({ product }: AddToCartButtonProps) {
   const [isAdding, setIsAdding] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [itemQuantityInCart, setItemQuantityInCart] = useState(0)
 
   useEffect(() => {
     const currentCart = readCart()
     const total = currentCart.reduce((sum, item) => sum + item.quantity, 0)
     setCartCount(total)
+    const existing = currentCart.find((item) => item.id === product.id)
+    setItemQuantityInCart(existing?.quantity ?? 0)
   }, [])
+
+  function updateCartStates(cart: CartItem[]) {
+    const total = cart.reduce((sum, item) => sum + item.quantity, 0)
+    setCartCount(total)
+    const existing = cart.find((item) => item.id === product.id)
+    setItemQuantityInCart(existing?.quantity ?? 0)
+  }
 
   function handleAddToCart() {
     setIsAdding(true)
@@ -76,8 +87,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
 
       writeCart(currentCart)
 
-      const total = currentCart.reduce((sum, item) => sum + item.quantity, 0)
-      setCartCount(total)
+      updateCartStates(currentCart)
       setIsAnimating(true)
       setTimeout(() => setIsAnimating(false), 600)
     } catch (error) {
@@ -85,6 +95,37 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
       toast.error('Não foi possível adicionar o produto ao carrinho')
     } finally {
       setIsAdding(false)
+    }
+  }
+
+  function handleRemoveOne() {
+    setIsRemoving(true)
+    try {
+      const currentCart = readCart()
+      const existingItemIndex = currentCart.findIndex((item) => item.id === product.id)
+
+      if (existingItemIndex === -1) {
+        toast.info('Produto não está no carrinho')
+        return
+      }
+
+      const existingQuantity = currentCart[existingItemIndex].quantity
+
+      if (existingQuantity <= 1) {
+        currentCart.splice(existingItemIndex, 1)
+        toast.success('Produto removido do carrinho')
+      } else {
+        currentCart[existingItemIndex].quantity -= 1
+        toast.success('Uma unidade foi removida')
+      }
+
+      writeCart(currentCart)
+      updateCartStates(currentCart)
+    } catch (error) {
+      console.error('Erro ao remover do carrinho:', error)
+      toast.error('Não foi possível remover o produto do carrinho')
+    } finally {
+      setIsRemoving(false)
     }
   }
 
@@ -98,9 +139,20 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
           {cartCount}
         </span>
       </div>
-      <Button size="lg" className="w-full sm:w-auto" onClick={handleAddToCart} disabled={isAdding}>
-        {isAdding ? 'Adicionando...' : 'Adicionar ao Carrinho'}
-      </Button>
+      <div className="flex w-full flex-col gap-3 sm:flex-row">
+        <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={isAdding}>
+          {isAdding ? 'Adicionando...' : 'Adicionar ao Carrinho'}
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          className="w-full"
+          onClick={handleRemoveOne}
+          disabled={isRemoving || itemQuantityInCart === 0}
+        >
+          {isRemoving ? 'Removendo...' : 'Remover 1 do Carrinho'}
+        </Button>
+      </div>
     </div>
   )
 }

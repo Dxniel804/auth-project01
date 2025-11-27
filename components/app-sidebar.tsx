@@ -1,7 +1,8 @@
 'use client'
 
 import * as React from "react"
-import { Database, Folder, ListChecks } from "lucide-react"
+import { Database, Folder, ListChecks, ImageIcon } from "lucide-react"
+
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +32,11 @@ const data = {
       name: "Pedidos",
       link: "/painel/pedidos" as const,
       icon: ListChecks,
+    },
+    {
+      name: "Banners",
+      link: "/painel/banners" as const,
+      icon: ImageIcon,
     },
   ],
 }
